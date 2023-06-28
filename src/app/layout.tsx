@@ -2,6 +2,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "./globals.css";
 import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
+import { ThemeProvider } from "./theme-provider";
 
 export const metadata = {
   title: "Kleros RPS",
@@ -23,7 +24,11 @@ export default function RootLayout({
       <body
         className={`${poppins.variable} font-primary min-w-[100vw] min-h-[100vh]`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {children}
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

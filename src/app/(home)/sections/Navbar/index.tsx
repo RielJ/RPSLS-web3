@@ -25,11 +25,11 @@ export const Navbar = () => {
   return (
     <div
       className={clsx(
-        "fixed top-0 left-0 z-[200] w-full sm:px-16 px-6 py-6",
+        "fixed top-0 left-0 z-[200] w-full py-6",
         scrolled && styles.scrolled
       )}
     >
-      <div className="flex items-end justify-end mx-auto inset-0 max-w-7xl">
+      <div className="flex items-end justify-end mx-auto inset-0 container">
         <Connected>
           <ConnectButton />
         </Connected>
