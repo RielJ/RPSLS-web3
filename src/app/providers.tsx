@@ -3,7 +3,7 @@
 import { chains, config } from "@/lib";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import * as React from "react";
+import React from "react";
 import { WagmiConfig } from "wagmi";
 
 const queryClient = new QueryClient();

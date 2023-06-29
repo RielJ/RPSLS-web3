@@ -1,6 +1,7 @@
-import { prisma } from "@/lib";
-import { Game, Prisma } from "@prisma/client";
+import { Game, Prisma, PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
+
+const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   if (req.method !== "GET") {

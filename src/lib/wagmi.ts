@@ -1,9 +1,8 @@
+"use client";
 import { getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig } from "wagmi";
 import { polygonMumbai } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
-
-const walletConnectProjectId = process.env.WALLET_PROJECT_ID;
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
@@ -17,7 +16,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 const { connectors } = getDefaultWallets({
   appName: "Kleros RPS",
   chains,
-  projectId: walletConnectProjectId,
+  projectId: "7f8cb052248fb68ed79a97d91e38f795",
 });
 
 export const config = createConfig({
