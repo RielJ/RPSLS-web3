@@ -6,7 +6,7 @@ export const useAddGame = () => {
   const { refetch } = useGames();
   const { ...props } = useMutation({
     mutationFn: async (game: Game) => {
-      return fetch("/games/all", {
+      return fetch("/api/games/all", {
         body: JSON.stringify({
           ...game,
         }),
