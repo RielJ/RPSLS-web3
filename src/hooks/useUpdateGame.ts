@@ -2,11 +2,11 @@ import { Game } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import { useGames } from "./useGames";
 
-export const useAddGame = () => {
+export const useUpdateGame = () => {
   const { refetch } = useGames();
-  const { ...props } = useMutation({
+  return useMutation({
     mutationFn: async (game: Game) => {
-      return fetch("/api/games/all", {
+      return fetch("/api/games/update", {
         body: JSON.stringify({
           ...game,
         }),
@@ -23,5 +23,4 @@ export const useAddGame = () => {
       console.error({ err });
     },
   });
-  return { ...props };
 };

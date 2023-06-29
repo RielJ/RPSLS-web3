@@ -1,14 +1,12 @@
 "use client";
 import React, { Suspense } from "react";
-import { useAccount } from "wagmi";
 import { GamesTable } from "./GamesTable";
+import { GamesLoading } from "./GamesLoading";
 
 const Games = () => {
-  const { address } = useAccount();
-
   return (
     <>
-      <Suspense fallback={<>Loading...</>}>
+      <Suspense fallback={<><GamesLoading /></>}>
         <GamesTable />
       </Suspense>
     </>

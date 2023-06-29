@@ -12,7 +12,7 @@ export const useGames = () => {
   return useQuery<IResponseData>({
     queryKey: ["games", address],
     queryFn: async () => {
-      const response = await fetch(`/api/games?address=${address}`, {
+      const response = await fetch(`/api/games/all?address=${address}`, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -23,5 +23,6 @@ export const useGames = () => {
       }
       return response.json();
     },
+    refetchInterval: 1000,
   });
 };

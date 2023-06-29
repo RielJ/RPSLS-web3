@@ -1,3 +1,4 @@
+"use client";
 import {
   TableRow,
   TableCell,
@@ -6,10 +7,13 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components";
-import { shortify } from "@/utils";
+import { formatTime, shortify } from "@/utils";
 import { Game } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { HiInformationCircle } from "react-icons/hi";
+import { GrInProgress } from "react-icons/gr";
+import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
+import { FaEquals } from "react-icons/fa";
 import { useAccount, useBalance } from "wagmi";
 import { GamesTableAction } from "./GamesTableAction";
 
@@ -22,16 +26,24 @@ const GamesTableRow = ({ game }: IGamesTableRow) => {
   const { data: balance } = useBalance({
     address,
   });
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(game.createdAt));
+  const [remainingTime, setRemainingTime] = useState(
+    Date.now() - new Date(game.createdAt).getTime()
+  );
 
   useEffect(() => {
-    const id = setTimeout(() => {
-      setTimeLeft(calculateTimeLeft(game.createdAt));
-      if (isElapsed(timeLeft)) clearTimeout(id);
+    const timer = setInterval(() => {
+      const currentTime = Date.now();
+      const timeDifference = currentTime - new Date(game.createdAt).getTime();
+
+      if (timeDifference > 301_000) {
+        clearInterval(timer);
+      } else {
+        setRemainingTime(timeDifference);
+      }
     }, 1000);
 
     return () => {
-      clearTimeout(id);
+      clearInterval(timer);
     };
   }, [game]);
 
@@ -50,7 +62,13 @@ const GamesTableRow = ({ game }: IGamesTableRow) => {
               <HiInformationCircle className="h-[1rem] w-[1rem] ml-2" />
             </TooltipTrigger>
             <TooltipContent>
-              <p>{getStatusMessage({ game, address })}</p>
+              <p>
+                {getStatusMessage({
+                  remainingTime,
+                  game,
+                  address,
+                })}
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -58,58 +76,125 @@ const GamesTableRow = ({ game }: IGamesTableRow) => {
       <TableCell>
         {game.staked} {balance?.symbol}
       </TableCell>
-      <TimeCell timeLeft={timeLeft} />
+      <TimeCell remainingTime={remainingTime} />
+      <TableCell>
+        <TooltipProvider>
+          <Tooltip>{getWinnerStatus(game, address || "")}</Tooltip>
+        </TooltipProvider>
+      </TableCell>
       <TableCell className="text-right">
-        <TableActions game={game} address={address} timeLeft={timeLeft} />
+        <TableActions
+          game={game}
+          address={address}
+          remainingTime={remainingTime}
+        />
       </TableCell>
     </TableRow>
   );
 };
 
+function getWinnerStatus(game: Game, address: string) {
+  if (game.status === "ALL_DONE") {
+    if (game.winner === "Tie") {
+      return (
+        <>
+          <TooltipTrigger>
+            <FaEquals />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Tie</p>
+          </TooltipContent>
+        </>
+      );
+    } else if (game.winner === address) {
+      return (
+        <>
+          <TooltipTrigger>
+            <AiOutlineCheckCircle />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Won</p>
+          </TooltipContent>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <TooltipTrigger>
+            <AiOutlineCloseCircle />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Lost</p>
+          </TooltipContent>
+        </>
+      );
+    }
+  } else {
+    return (
+      <>
+        <TooltipTrigger>
+          <GrInProgress />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>In Progress</p>
+        </TooltipContent>
+      </>
+    );
+  }
+}
+
 function TableActions({
-  game: { player1, status, player2 },
+  game,
   address = "",
-  timeLeft,
+  remainingTime,
 }: {
   game: Game;
   address?: string;
-  timeLeft: { minutes: number; seconds: number };
+  remainingTime: number;
 }) {
-  const elapsed = isElapsed(timeLeft);
+  const { player1, status, player2 } = game;
+  const elapsed = formatTime(remainingTime) === "Elapsed";
   if (elapsed) {
     if (address === player1) {
-      if (status === "INIT") return <GamesTableAction action="j2Timeout" />;
+      if (status === "INIT")
+        return <GamesTableAction game={game} action="j2Timeout" />;
       else if (status === "PLAYER_2_DONE")
-        return <GamesTableAction action="disabled" />;
+        return <GamesTableAction game={game} action="disabled" />;
     } else if (address === player2) {
-      if (status === "INIT") return <GamesTableAction action="disabled" />;
+      if (status === "INIT")
+        return <GamesTableAction game={game} action="disabled" />;
       else if (status === "PLAYER_2_DONE")
-        return <GamesTableAction action="j1Timeout" />;
+        return <GamesTableAction game={game} action="j1Timeout" />;
     }
   } else {
     if (address === player1) {
-      if (status === "INIT") return <GamesTableAction action="disabled" />;
+      if (status === "INIT")
+        return <GamesTableAction game={game} action="disabled" />;
       else if (status === "PLAYER_2_DONE")
-        return <GamesTableAction action="solve" />;
+        return <GamesTableAction game={game} action="solve" />;
     } else if (address === player2) {
-      if (status === "INIT") return <GamesTableAction action="play" />;
+      if (status === "INIT")
+        return <GamesTableAction game={game} action="play" />;
       else if (status === "PLAYER_2_DONE")
-        return <GamesTableAction action="disabled" />;
+        return <GamesTableAction game={game} action="disabled" />;
     }
   }
 
-  return <GamesTableAction action="disabled" />;
+  return <GamesTableAction game={game} action="disabled" />;
 }
 function getStatusMessage({
-  game: { status, createdAt, player1, player2 },
+  remainingTime,
+  game: { status, player1, player2 },
   address = "",
 }: {
+  remainingTime: number;
   game: Game;
   address?: string;
 }) {
-  const elapsed = isElapsed(calculateTimeLeft(createdAt));
+  const elapsed = formatTime(remainingTime) === "Elapsed";
   let message = "Game is Done!";
   if (elapsed) {
+    // [INIT, PLAYER_2_DONE, ALL_DONE]
     if (address === player1) {
       if (status === "INIT")
         message =
@@ -138,51 +223,8 @@ function getStatusMessage({
   return <span>{message}</span>;
 }
 
-function calculateTimeLeft(dateCreated: Date) {
-  const difference = -new Date().getTime() + new Date(dateCreated).getTime();
-  let timeLeft = {
-    minutes: 0,
-    seconds: 0,
-  };
-
-  if (difference > 0) {
-    timeLeft = {
-      minutes: Math.floor((difference / 1000 / 60) % 60),
-      seconds: Math.floor((difference / 1000) % 60),
-    };
-  }
-  console.log(timeLeft.minutes, timeLeft.seconds);
-
-  return timeLeft;
-}
-
-function isElapsed(timeLeft: { minutes: number; seconds: number }) {
-  return timeLeft.minutes === 0 && timeLeft.seconds === 0;
-}
-
-const TimeCell = ({
-  timeLeft,
-}: {
-  timeLeft: { minutes: number; seconds: number };
-}) => {
-  return (
-    <TableCell>
-      {!isElapsed(timeLeft) ? (
-        <>
-          <span>{timeLeft.minutes}</span>
-          <span>
-            :
-            {timeLeft.seconds.toString().length == 1
-              ? `0${timeLeft.seconds}`
-              : timeLeft.seconds}
-          </span>{" "}
-          <span>{timeLeft.minutes > 0 ? "Minutes Left" : "Seconds Left"}</span>
-        </>
-      ) : (
-        "Elapsed"
-      )}
-    </TableCell>
-  );
+const TimeCell = ({ remainingTime }: { remainingTime: number }) => {
+  return <TableCell>{formatTime(remainingTime)}</TableCell>;
 };
 
 export { GamesTableRow };

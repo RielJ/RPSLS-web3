@@ -26,16 +26,13 @@ import {
   useToast,
 } from "@/components";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Address, useAccount, useBalance, usePublicClient } from "wagmi";
+import { Address, useAccount, useBalance } from "wagmi";
 import * as z from "zod";
 import validator from "validator";
-import { useAddGame, useDeployContract, useGames } from "@/hooks";
-import { Block, Hash } from "viem";
-import { Game } from "@prisma/client";
-
-const MOVE = ["Rock", "Paper", "Scissors", "Spock", "Lizard"] as const;
+import { useDeployContract } from "@/hooks";
+import { MOVE } from "@/constants";
 
 const createGameFormSchema = z.object({
   address: z.string().refine(validator.isEthereumAddress, {
@@ -48,8 +45,6 @@ const createGameFormSchema = z.object({
 });
 
 const CreateGame = () => {
-  const publicClient = usePublicClient();
-  const { refetch: refetchGames } = useGames();
   const form = useForm<z.infer<typeof createGameFormSchema>>({
     resolver: zodResolver(createGameFormSchema),
     defaultValues: {
@@ -57,106 +52,35 @@ const CreateGame = () => {
       stake: "0",
     },
   });
+  const [isOpen, setIsOpen] = useState(false);
   const { address } = useAccount();
   const { data: balance } = useBalance({
     address,
     watch: true,
   });
-  const {
-    mutate: deployContract,
-    data: contractHash,
-    isLoading: isDeployLoading,
-    isError: isDeployError,
-  } = useDeployContract();
-  const { mutate: addGame, isLoading: isAddGameLoading } = useAddGame();
+  const { mutate: deployContract, isLoading: isDeployLoading } =
+    useDeployContract();
   const { toast } = useToast();
-  const [hash, setHash] = useState<Hash>();
-  const [block, setBlock] = useState<Block>();
-  const [game, setGame] = useState<Game | null>(null);
-  const [loading, setLoading] = useState(false);
 
   function onSubmit(values: z.infer<typeof createGameFormSchema>) {
-    setGame({
-      player1: address || "",
-      player2: values.address,
-      staked: parseInt(values.stake),
-      id: "",
-      status: "PLAYER_2_MOVE",
-      createdAt: new Date(),
-    });
-    deployContract({
-      address: values.address as Address,
-      move: parseInt(values.move),
-      stake: values.stake,
-    });
-  }
-
-  useEffect(() => {
-    (async () => {
-      if (hash) {
-        try {
-          setLoading(true);
-          const receipt = await publicClient.waitForTransactionReceipt({
-            hash,
-          });
-          if (receipt.status === "success") {
-            const block = await publicClient.getBlock({
-              blockNumber: receipt.blockNumber,
-            });
-            setBlock(block);
-          }
-        } catch (err) {
-          toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong.",
-            description: "There was a problem with your request.",
-          });
-        } finally {
-          setLoading(false);
-        }
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hash]);
-
-  useEffect(() => {
-    if (block && block.number) {
-      addGame({
-        ...game,
-        id: block.number.toString(),
-        createdAt: new Date(Number(block.timestamp) * 1000),
-      } as Game);
-      toast({
-        description: "Game has been created Successfully!",
-      });
-      refetchGames();
-      setGame(null);
-      setBlock(undefined);
-      setHash(undefined);
-    }
-  }, [block, game, addGame]);
-
-  useEffect(() => {
-    if (contractHash) setHash(contractHash);
-  }, [contractHash]);
-
-  useEffect(() => {
-    setLoading(isAddGameLoading || isDeployLoading);
-  }, [isAddGameLoading, isDeployLoading]);
-
-  useEffect(() => {
-    if (isDeployError) {
+    if (balance && parseInt(values.stake) > balance?.value) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
+        description: "You don't have enough tokens to stake!",
       });
-      setLoading(false);
+    } else {
+      deployContract({
+        address: values.address as Address,
+        move: parseInt(values.move),
+        stake: values.stake,
+      });
+      setIsOpen(false);
     }
-  }, [isDeployError]);
+  }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">Create a Game!</Button>
       </DialogTrigger>
@@ -235,7 +159,7 @@ const CreateGame = () => {
             />
             <Separator />
             <DialogFooter>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={isDeployLoading}>
                 Create
               </Button>
             </DialogFooter>

@@ -13,20 +13,16 @@ export async function GET(req: Request) {
   }
 
   try {
-    // const user: { address: string } = await req.query;
-    //
     const { searchParams } = new URL(req.url);
     const address = searchParams.get("address") || "";
-    console.log({ searchParams, address });
     const games: Game[] = await prisma.game.findMany({
       where: {
         OR: [{ player1: address }, { player2: address }],
       },
       orderBy: {
-        id: "desc",
+        createdAt: "desc",
       },
     });
-    console.log({ games });
     return NextResponse.json({ data: games }, { status: 200 });
   } catch (err) {
     return NextResponse.json(
@@ -44,10 +40,8 @@ export async function POST(req: Request) {
     );
   }
 
-  console.log({ req });
   try {
     const game: Prisma.GameCreateInput = await req.json();
-    console.log({ game });
     const savedGame = await prisma.game.create({ data: game });
     return NextResponse.json({ data: savedGame }, { status: 200 });
   } catch (err) {

@@ -3,6 +3,7 @@ import { ConnectButton, Connected } from "@/components";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import styles from "./Navbar.module.scss";
+import { FaHandScissors } from "react-icons/fa";
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -29,11 +30,16 @@ export const Navbar = () => {
         scrolled && styles.scrolled
       )}
     >
-      <div className="flex items-end justify-end mx-auto inset-0 container">
-        <Connected>
-          <ConnectButton />
-        </Connected>
-      </div>
+      <nav className="flex items-center justify-between mx-auto inset-0 max-w-7xl">
+        <div className="w-full font-logo">
+          <FaHandScissors />
+        </div>
+        <div className="w-full flex items-end justify-end">
+          <Connected>
+            <ConnectButton />
+          </Connected>
+        </div>
+      </nav>
     </div>
   );
 };

@@ -14,7 +14,7 @@ import { Games } from "./Games";
 
 const Main = () => {
   return (
-    <section className="container w-full h-full flex justify-center">
+    <section className="container w-full h-full flex justify-center pb-[10rem]">
       <NotConnected>
         <div className="flex flex-col justify-center items-center space-y-3">
           <div>
@@ -34,7 +34,7 @@ const Main = () => {
             </div>
 
             <CardDescription>
-              A Rock, Paper, Scissors, Spock, and Lizard Game
+              <div>A Rock, Paper, Scissors, Spock, and Lizard Game</div>
             </CardDescription>
           </CardHeader>
           <Separator />
