@@ -1,9 +1,12 @@
 import { useHasherHash } from "@/generated";
-import { HASHER_ADDRESS as address } from "@/constants";
+import { HASHER_ADDRESS } from "@/constants";
 
 const salt = process.env.SALT;
 
 export const useHashers = () => {
+  // TODO Implement a per chain basis of hasher address
+  // const { chain, chains } = useNetwork()
+  const address = HASHER_ADDRESS["MUMBAI"];
   const { data: rock } = useHasherHash({
     address,
     args: [1, BigInt(salt || "0")],

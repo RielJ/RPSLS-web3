@@ -1,5 +1,4 @@
 import { Game, Prisma, PrismaClient } from "@prisma/client";
-// eslint-disable-next-line @next/next/no-server-import-in-page
 import { NextResponse } from "next/server";
 
 const prisma = new PrismaClient();
