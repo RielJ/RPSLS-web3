@@ -1,3 +1,3 @@
-'use client'
+"use client";
 
-export { ConnectButton } from '@rainbow-me/rainbowkit'
+export { ConnectButton } from "@rainbow-me/rainbowkit";

@@ -18,41 +18,142 @@ import {
   FormMessage,
   Form,
   Separator,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  useToast,
 } from "@/components";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useAccount, useBalance } from "wagmi";
+import { Address, useAccount, useBalance, usePublicClient } from "wagmi";
 import * as z from "zod";
+import validator from "validator";
+import { useAddGame, useDeployContract, useGames } from "@/hooks";
+import { Block, Hash } from "viem";
+import { Game } from "@prisma/client";
+
+const MOVE = ["Rock", "Paper", "Scissors", "Spock", "Lizard"] as const;
 
 const createGameFormSchema = z.object({
-  address: z
-    .string()
-    .startsWith("0x", { message: 'Address must start with "0x"' })
-    .min(2, {
-      message: "Username must be at least 2 characters.",
-    }),
-  stake: z.number().positive({ message: "Stake must be greater than 0" }),
+  address: z.string().refine(validator.isEthereumAddress, {
+    message: "Must be a valid address.",
+  }),
+  stake: z.string().refine((val) => validator.isFloat(val, { min: 0 }), {
+    message: "Must be a valid ammount",
+  }),
+  move: z.string().refine((val) => validator.isInt(val, { min: 0, max: 5 })),
 });
 
 const CreateGame = () => {
+  const publicClient = usePublicClient();
+  const { refetch: refetchGames } = useGames();
   const form = useForm<z.infer<typeof createGameFormSchema>>({
     resolver: zodResolver(createGameFormSchema),
     defaultValues: {
       address: "",
-      stake: 0,
+      stake: "0",
     },
   });
   const { address } = useAccount();
-  const { data: balance, refetch } = useBalance({
+  const { data: balance } = useBalance({
     address,
     watch: true,
   });
+  const {
+    mutate: deployContract,
+    data: contractHash,
+    isLoading: isDeployLoading,
+    isError: isDeployError,
+  } = useDeployContract();
+  const { mutate: addGame, isLoading: isAddGameLoading } = useAddGame();
+  const { toast } = useToast();
+  const [hash, setHash] = useState<Hash>();
+  const [block, setBlock] = useState<Block>();
+  const [game, setGame] = useState<Game | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // 2. Define a submit handler.
   function onSubmit(values: z.infer<typeof createGameFormSchema>) {
-    console.log(values);
+    setGame({
+      player1: address || "",
+      player2: values.address,
+      staked: parseInt(values.stake),
+      id: "",
+      status: "PLAYER_2_MOVE",
+      createdAt: new Date(),
+    });
+    deployContract({
+      address: values.address as Address,
+      move: parseInt(values.move),
+      stake: values.stake,
+    });
   }
+
+  useEffect(() => {
+    (async () => {
+      if (hash) {
+        try {
+          setLoading(true);
+          const receipt = await publicClient.waitForTransactionReceipt({
+            hash,
+          });
+          if (receipt.status === "success") {
+            const block = await publicClient.getBlock({
+              blockNumber: receipt.blockNumber,
+            });
+            setBlock(block);
+          }
+        } catch (err) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          });
+        } finally {
+          setLoading(false);
+        }
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hash]);
+
+  useEffect(() => {
+    if (block && block.number) {
+      addGame({
+        ...game,
+        id: block.number.toString(),
+        createdAt: new Date(Number(block.timestamp) * 1000),
+      } as Game);
+      toast({
+        description: "Game has been created Successfully!",
+      });
+      refetchGames();
+      setGame(null);
+      setBlock(undefined);
+      setHash(undefined);
+    }
+  }, [block, game, addGame]);
+
+  useEffect(() => {
+    if (contractHash) setHash(contractHash);
+  }, [contractHash]);
+
+  useEffect(() => {
+    setLoading(isAddGameLoading || isDeployLoading);
+  }, [isAddGameLoading, isDeployLoading]);
+
+  useEffect(() => {
+    if (isDeployError) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+      });
+      setLoading(false);
+    }
+  }, [isDeployError]);
 
   return (
     <Dialog>
@@ -68,7 +169,7 @@ const CreateGame = () => {
         </DialogHeader>
         <Separator />
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="address"
@@ -95,16 +196,48 @@ const CreateGame = () => {
                     </div>
                   </div>
                   <FormControl>
-                    <Input type="number" placeholder="shadcn" {...field} />
+                    <Input {...field} type="number" />
                   </FormControl>
                   <FormDescription>{balance?.symbol} staked</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="move"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Move</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a move to play" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {MOVE.map((move, i) => (
+                        <SelectItem value={i.toString()} key={`${move}`}>
+                          {move}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    Your Move to Make (Irreversible)
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <Separator />
             <DialogFooter>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={loading}>
+                Create
+              </Button>
             </DialogFooter>
           </form>
         </Form>

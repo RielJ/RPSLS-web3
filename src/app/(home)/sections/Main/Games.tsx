@@ -1,23 +1,16 @@
 "use client";
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components";
-import React from "react";
+import React, { Suspense } from "react";
+import { useAccount } from "wagmi";
+import { GamesTable } from "./GamesTable";
 
 const Games = () => {
+  const { address } = useAccount();
+
   return (
     <>
-      <Accordion type="single" collapsible className="w-full">
-        <AccordionItem className="border-b-[1px]" value="item-1">
-          <AccordionTrigger>Is it accessible?</AccordionTrigger>
-          <AccordionContent>
-            Yes. It adheres to the WAI-ARIA design pattern.
-          </AccordionContent>
-        </AccordionItem>
-      </Accordion>
+      <Suspense fallback={<>Loading...</>}>
+        <GamesTable />
+      </Suspense>
     </>
   );
 };

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Poppins } from "next/font/google";
 import { Providers } from "./providers";
 import { ThemeProvider } from "./theme-provider";
+import { Toaster } from "@/components";
 
 export const metadata = {
   title: "Kleros RPS",
@@ -27,6 +28,7 @@ export default function RootLayout({
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             {children}
+            <Toaster />
           </ThemeProvider>
         </Providers>
       </body>

@@ -39,7 +39,9 @@ const Main = () => {
           </CardHeader>
           <Separator />
           <CardContent>
-            <Games />
+            <div className="w-full">
+              <Games />
+            </div>
           </CardContent>
         </Card>
       </Connected>
