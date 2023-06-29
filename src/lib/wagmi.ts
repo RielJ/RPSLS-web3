@@ -1,15 +1,15 @@
 import { getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig } from "wagmi";
-import { goerli, hardhat, mainnet } from "wagmi/chains";
+import { polygonMumbai } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const walletConnectProjectId = "7f8cb052248fb68ed79a97d91e38f795";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
-    mainnet,
-    hardhat,
-    ...(process.env.NODE_ENV === "development" ? [goerli] : []),
+    polygonMumbai,
+    // hardhat,
+    // ...(process.env.NODE_ENV === "development" ? [goerli] : []),
   ],
   [publicProvider()]
 );
