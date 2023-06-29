@@ -6,7 +6,7 @@ export const useUpdateGame = () => {
   const { refetch } = useGames();
   return useMutation({
     mutationFn: async (game: Game) => {
-      return fetch("/api/games/update", {
+      return fetch("/games/update", {
         body: JSON.stringify({
           ...game,
         }),

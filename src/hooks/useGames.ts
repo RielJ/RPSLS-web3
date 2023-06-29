@@ -12,7 +12,7 @@ export const useGames = () => {
   return useQuery<IResponseData>({
     queryKey: ["games", address],
     queryFn: async () => {
-      const response = await fetch(`/api/games/all?address=${address}`, {
+      const response = await fetch(`/games/all?address=${address}`, {
         headers: {
           "Content-Type": "application/json",
         },
