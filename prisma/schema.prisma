@@ -11,12 +11,16 @@ datasource db {
 }
 
 model Game {
-  id        String   @id @unique
-  player1   String
-  player2   String
-  status    String
-  staked    Int
-  createdAt DateTime @default(now())
+  id              String   @id @unique
+  player1         String
+  player2         String
+  status          String
+  contractAddress String
+  staked          Int
+  move            String
+  winner          String?  @default("")
+  moveIV          String
+  createdAt       DateTime @default(now())
 
   @@index([id, player1, player2])
 }
