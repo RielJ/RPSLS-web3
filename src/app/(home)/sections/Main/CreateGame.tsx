@@ -33,6 +33,7 @@ import * as z from "zod";
 import validator from "validator";
 import { useDeployContract } from "@/hooks";
 import { MOVE } from "@/constants";
+import { parseEther } from "viem";
 
 const createGameFormSchema = z.object({
   address: z.string().refine(validator.isEthereumAddress, {
@@ -57,13 +58,17 @@ const CreateGame = () => {
   const { data: balance } = useBalance({
     address,
     watch: true,
+    cacheTime: 5000,
   });
   const { mutate: deployContract, isLoading: isDeployLoading } =
     useDeployContract();
   const { toast } = useToast();
 
   function onSubmit(values: z.infer<typeof createGameFormSchema>) {
-    if (balance && BigInt(values.stake) > balance?.value) {
+    if (
+      balance &&
+      parseEther(values.stake) > parseEther(balance?.value.toString())
+    ) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

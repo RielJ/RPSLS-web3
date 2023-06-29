@@ -244,6 +244,7 @@ const PlayDialog = ({
   const { data: balance } = useBalance({
     address,
     watch: true,
+    cacheTime: 5000,
   });
   const form = useForm<z.infer<typeof playFormSchema>>({
     resolver: zodResolver(playFormSchema),
