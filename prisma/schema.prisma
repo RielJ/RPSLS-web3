@@ -16,7 +16,7 @@ model Game {
   player2         String
   status          String
   contractAddress String
-  staked          Int
+  staked          String
   move            String
   winner          String?  @default("")
   moveIV          String

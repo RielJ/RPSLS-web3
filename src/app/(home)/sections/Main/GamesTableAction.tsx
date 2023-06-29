@@ -65,7 +65,6 @@ interface IGamesTableAction {
 
 // ["play", "solve", "j1TimeOut", "j2Timeout", "disabled"]
 const GamesTableAction = ({ action, game }: IGamesTableAction) => {
-  console.log({ action });
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const gameContract = {

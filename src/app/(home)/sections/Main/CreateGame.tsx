@@ -63,7 +63,7 @@ const CreateGame = () => {
   const { toast } = useToast();
 
   function onSubmit(values: z.infer<typeof createGameFormSchema>) {
-    if (balance && parseInt(values.stake) > balance?.value) {
+    if (balance && BigInt(values.stake) > balance?.value) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",

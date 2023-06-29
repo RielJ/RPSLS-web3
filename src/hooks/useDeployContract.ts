@@ -58,7 +58,7 @@ export const useDeployContract = () => {
         moveIV: iv.toString(CryptoJS.enc.Hex),
         player1: address || "",
         player2: variables.address,
-        staked: parseInt(variables.stake),
+        staked: variables.stake,
         contractAddress: receipt.contractAddress,
         id: block.number?.toString(),
         createdAt: new Date(Number(block.timestamp) * 1000),

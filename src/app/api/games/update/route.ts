@@ -14,7 +14,6 @@ export async function POST(req: Request) {
   console.log({ req });
   try {
     const game: Prisma.GameUpdateInput = await req.json();
-    console.log({ game });
     const savedGame = await prisma.game.update({
       where: {
         id: game.id as string,
