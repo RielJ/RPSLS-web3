@@ -7,10 +7,6 @@ import { ThemeProvider } from "./theme-provider";
 import { CursorEffects, Toaster } from "@/components";
 import { useState, useEffect } from "react";
 
-// export const metadata = {
-//   title: "Kleros RPS",
-// };
-
 const poppins = Poppins({
   weight: "700",
   subsets: ["latin"],

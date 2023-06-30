@@ -29,7 +29,9 @@ const Main = () => {
         <Card className="max-w-5xl w-full">
           <CardHeader>
             <div className="flex flex-row justify-between items-center">
-              <h1 className="text-xl font-bold">Kleros RPSSL</h1>
+              <h1 className="text-xl font-bold">
+                Rock Paper Scissors Spock and Lizard Game
+              </h1>
               <CreateGame />
             </div>
 

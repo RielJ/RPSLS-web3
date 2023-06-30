@@ -14,7 +14,7 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
 );
 
 const { connectors } = getDefaultWallets({
-  appName: "Kleros RPS",
+  appName: "Rock Paper Scissors Spock and Lizard Game",
   chains,
   projectId: "7f8cb052248fb68ed79a97d91e38f795",
 });
