@@ -43,6 +43,7 @@ import { useForm } from "react-hook-form";
 import { MOVE } from "@/constants";
 import { useUpdateGame } from "@/hooks/useUpdateGame";
 import CryptoJS from "crypto-js";
+import { useDecrypt } from "@/hooks";
 
 // PLAYER 1:
 // 1. Player 1 challenges Player 2 = INITIAL : Disabled Button
@@ -71,6 +72,7 @@ const GamesTableAction = ({ action, game }: IGamesTableAction) => {
     address: game.contractAddress as Address,
     abi: RPS__factory.abi,
   };
+  const { mutateAsync: decrypt } = useDecrypt();
   const { mutate: updateGame, isLoading: isUpdateGameLoading } =
     useUpdateGame();
   const { write: solve, isLoading: solveLoading } = useContractWrite({
@@ -131,10 +133,7 @@ const GamesTableAction = ({ action, game }: IGamesTableAction) => {
     args: [0],
     value: parseEther(game.staked.toString()),
     onSuccess: async (_, variables) => {
-      const iv = CryptoJS.enc.Hex.parse(game.moveIV);
-      const key = process.env.ENCRYPT_PARAPHRASE || "";
-      const moveWord = CryptoJS.AES.decrypt(game.move, key, { iv });
-      const move1 = parseInt(moveWord.toString(CryptoJS.enc.Utf8));
+      const move1 = await decrypt({ move: game.move, moveIV: game.moveIV });
       const move2 = (variables.args && variables.args[0]) || 0;
       let winStatus = "";
       if (move1 === move2) winStatus = "Tie";

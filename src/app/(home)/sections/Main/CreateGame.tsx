@@ -60,6 +60,7 @@ const CreateGame = () => {
     watch: true,
     cacheTime: 5000,
   });
+
   const { mutate: deployContract, isLoading: isDeployLoading } =
     useDeployContract();
   const { toast } = useToast();
