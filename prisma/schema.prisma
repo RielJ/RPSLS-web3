@@ -6,12 +6,15 @@ generator client {
 }
 
 datasource db {
+  // provider = "sqlite"
+  // url      = "file:./dev.db"
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Game {
   id              String   @id @unique
+  chainId         String
   player1         String
   player2         String
   status          String
@@ -22,5 +25,5 @@ model Game {
   moveIV          String
   createdAt       DateTime @default(now())
 
-  @@index([id, player1, player2])
+  @@index([id, player1, player2, chainId])
 }
