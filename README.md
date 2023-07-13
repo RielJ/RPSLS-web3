@@ -12,12 +12,14 @@ To get started with the game, follow these steps:
 2. Configure your Ethereum provider:
 
 - Make sure you have an Ethereum provider (e.g., MetaMask) installed and configured in your browser.
-- Connect your Ethereum provider to the desired network (e.g., Ropsten, Rinkeby, or a local development network).
+- Connect your Ethereum provider to the desired network (e.g., Ropsten, Rinkeby, or a local development network). You can modify this on `wagmi.ts` config file.
 
-3. Start the local development server:
+3. Configure your `.env` file, open `.env.example` for reference:
+
+4. Start the local development server:
    `pnpm dev`
 
-4. Open the game in your browser:
+5. Open the game in your browser:
    `https://localhost:3000`
 
 ## How to Play
@@ -31,6 +33,7 @@ To get started with the game, follow these steps:
 ## Technologies Used
 
 - NextJS, shadcnui, and tailwindcss for the front-end interface
+- prisma and postgresql for the backend implementations.
 - wagmi.sh, viem, and rainbowkit for interacting with Ethereum and the player's wallet
 - Solidity for the smart contract implementation
 - Hardhat for smart contract compilation, test, and deployment
