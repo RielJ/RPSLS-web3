@@ -79,8 +79,6 @@ export const usePlayGame = ({ game, move }: IUsePlayGame) => {
         const move2 = parseInt(move);
         let winStatus = "";
 
-        console.log({ move1, move2 });
-
         if (move1 === move2) winStatus = "Tie";
         else if (move1 % 2 === move2 % 2)
           move1 < move2 ? (winStatus = player1) : (winStatus = player2);

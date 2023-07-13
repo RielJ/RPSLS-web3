@@ -51,7 +51,7 @@ export const PlayGame = ({ game }: { game: Game }) => {
     },
   });
   const move = form.watch("move");
-  const { play } = usePlayGame({ game, move });
+  const { play, isLoading } = usePlayGame({ game, move });
 
   function onSubmit() {
     if (play) {
@@ -123,7 +123,7 @@ export const PlayGame = ({ game }: { game: Game }) => {
             />
             <Separator />
             <DialogFooter>
-              <Button type="submit" disabled={!play}>
+              <Button type="submit" disabled={!play || isLoading}>
                 Play
               </Button>
             </DialogFooter>

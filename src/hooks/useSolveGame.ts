@@ -57,7 +57,6 @@ export const useSolveGame = ({ game }: IUseSolveGame) => {
   const { write: solve, data } = useContractWrite({
     ...config,
     onMutate: () => {
-      console.log({ salt, move });
       setCurrentToast(
         toastLoader({
           title: "Solving!",
