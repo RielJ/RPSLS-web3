@@ -138,24 +138,30 @@ function dispatch(action: Action) {
   });
 }
 
-export type ToastType = Omit<ToasterToast, "id">;
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
-function toast({ ...props }: ToastType) {
-  const id = genId();
+export type ToastType = PartialBy<ToasterToast, "id">;
+
+function toastLoader({ ...props }: ToastType) {
+  const idGen = props?.id || genId();
 
   const update = (props: ToasterToast) =>
     dispatch({
       type: "UPDATE_TOAST",
-      toast: { ...props, id },
+      toast: { ...props, id: idGen },
     });
-  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id });
+  const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: idGen });
 
   dispatch({
     type: "ADD_TOAST",
     toast: {
       ...props,
-      id,
+      duration: Number.POSITIVE_INFINITY,
+      draggable: false,
+      id: idGen,
       open: true,
+      onEscapeKeyDown: () => null,
       onOpenChange: (open) => {
         if (!open) dismiss();
       },
@@ -163,13 +169,13 @@ function toast({ ...props }: ToastType) {
   });
 
   return {
-    id: id,
+    id: idGen,
     dismiss,
     update,
   };
 }
 
-function useToast() {
+function useToastLoader() {
   const [state, setState] = React.useState<State>(memoryState);
 
   React.useEffect(() => {
@@ -184,9 +190,9 @@ function useToast() {
 
   return {
     ...state,
-    toast,
+    toast: toastLoader,
     dismiss: (toastId?: string) => dispatch({ type: "DISMISS_TOAST", toastId }),
   };
 }
 
-export { useToast, toast };
+export { useToastLoader, toastLoader };

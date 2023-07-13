@@ -1,39 +1,37 @@
 "use client";
 
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import {
   Toast,
-  ToastClose,
   ToastDescription,
   ToastProvider,
   ToastTitle,
   ToastViewport,
 } from "@/components/shadcn/ui/toast";
-import { useToast } from "@/components/shadcn/ui/use-toast";
+import { useToastLoader } from "@/components/shadcn/ui/use-toast-loader";
 
-export function Toaster() {
-  const { toasts } = useToast();
+export function ToasterLoader() {
+  const { toasts } = useToastLoader();
 
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
         return (
-          <Toast
-            key={id}
-            {...props}
-            className="data-[state=closed]:slide-out-to-left-full"
-          >
-            <div className="grid gap-1">
+          <Toast key={id} {...props}>
+            <div className="grid gap-1 relative">
               {title && <ToastTitle>{title}</ToastTitle>}
               {description && (
                 <ToastDescription>{description}</ToastDescription>
               )}
             </div>
+            <span className="absolute top-4 right-4">
+              <LoadingSpinner />
+            </span>
             {action}
-            <ToastClose />
           </Toast>
         );
       })}
-      <ToastViewport className="space-y-2 sm:right-auto" />
+      <ToastViewport className="space-y-2" />
     </ToastProvider>
   );
 }

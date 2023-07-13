@@ -10,6 +10,8 @@ export * from "./select";
 export * from "./toast";
 export * from "./toaster";
 export * from "./use-toast";
+export * from "./toaster-loader";
+export { toastLoader, useToastLoader } from "./use-toast-loader";
 export * from "./skeleton";
 export * from "./table";
 export * from "./tooltip";
