@@ -2,10 +2,10 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import "./globals.css";
 import { Poppins } from "next/font/google";
-import { Providers } from "./providers";
-import { ThemeProvider } from "./theme-provider";
 import { CursorEffects, Toaster } from "@/components";
 import { useState, useEffect } from "react";
+import { Providers, ThemeProvider } from "./providers";
+import { ToasterLoader } from "@/components/shadcn/ui/toaster-loader";
 
 const poppins = Poppins({
   weight: "700",
@@ -46,6 +46,7 @@ export default function RootLayout({
             {!isMobile && <CursorEffects />}
             {children}
             <Toaster />
+            <ToasterLoader />
           </ThemeProvider>
         </Providers>
       </body>

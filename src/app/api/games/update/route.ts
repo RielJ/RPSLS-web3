@@ -1,7 +1,6 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import prisma from "@/prisma-client";
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
@@ -11,7 +10,6 @@ export async function POST(req: Request) {
     );
   }
 
-  console.log({ req });
   try {
     const game: Prisma.GameUpdateInput = await req.json();
     const savedGame = await prisma.game.update({

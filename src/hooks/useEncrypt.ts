@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 
 interface IOutputData {
-  move: string;
-  moveIV: string;
+  data: {
+    move: string;
+    moveIV: string;
+  };
 }
 
 interface IInputData {
@@ -21,7 +23,6 @@ export const useEncrypt = () => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      console.log({ response });
       return response.json();
     },
   });

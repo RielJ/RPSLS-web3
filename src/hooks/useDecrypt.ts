@@ -5,8 +5,12 @@ interface IInputData {
   moveIV: string;
 }
 
+interface IOutputData {
+  data: string;
+}
+
 export const useDecrypt = () => {
-  return useMutation<number, unknown, IInputData>({
+  return useMutation<IOutputData, unknown, IInputData>({
     mutationFn: async ({ move, moveIV }) => {
       const response = await fetch(
         `/api/crypt/decrypt?move=${move}&moveIV=${moveIV}`,
@@ -20,7 +24,6 @@ export const useDecrypt = () => {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      console.log({ response });
       return response.json();
     },
   });

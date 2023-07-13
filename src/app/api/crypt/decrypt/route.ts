@@ -11,10 +11,15 @@ export async function GET(req: Request) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const move = searchParams.get("move") || "";
+    const moveEncrypted = searchParams.get("move") || "";
     const iv = CryptoJS.enc.Hex.parse(searchParams.get("moveIV") || "");
-    const key = process.env.ENCRYPT_PARAPHRASE || "";
-    const decryptedWord = CryptoJS.AES.decrypt(move, key, { iv });
+    const key = CryptoJS.enc.Hex.parse(process.env.ENCRYPT_PARAPHRASE || "");
+    const parsedCipher = CryptoJS.enc.Hex.parse(moveEncrypted);
+    const encryption = CryptoJS.lib.CipherParams.create({
+      ciphertext: parsedCipher,
+    }).toString(CryptoJS.format.OpenSSL);
+
+    const decryptedWord = CryptoJS.AES.decrypt(encryption, key, { iv });
     const decrypted = decryptedWord.toString(CryptoJS.enc.Utf8);
     return NextResponse.json({ data: decrypted }, { status: 200 });
   } catch (err) {

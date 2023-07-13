@@ -1,0 +1,84 @@
+"use client";
+import { useEffect, useState } from "react";
+import { OnTransactionsParameter } from "viem";
+import { usePublicClient, useWatchPendingTransactions } from "wagmi";
+import { useToastLoader } from "@/components";
+import { shortify } from "@/utils";
+
+export const Transactions = () => {
+  const publicClient = usePublicClient();
+  const [transactions, setTransactions] = useState<
+    OnTransactionsParameter | undefined
+  >([]);
+  const { toast, toasts } = useToastLoader();
+
+  useWatchPendingTransactions({
+    listener: (hashes) => {
+      setTransactions(hashes);
+    },
+  });
+
+  useEffect(() => {
+    const stats = transactions?.map((hash) => {
+      return checkTransactionStatus(hash);
+    });
+    Promise.all([stats]);
+  }, []);
+
+  const checkTransactionStatus = async (_hash: `0x${string}`) => {
+    const transaction = await publicClient.getTransaction({ hash: _hash });
+
+    const hash = shortify(_hash);
+
+    console.log({ transaction, toasts });
+
+    if (transaction) {
+      if (transaction.blockNumber) {
+        const t = toasts.find((t) => t.id === hash);
+        if (!!t) {
+          t.description = `Transaction with hash ${hash} has been confirmed.`;
+          t.title = "Transaction Confirmed";
+          t.duration = 5000;
+        } else {
+          toast({
+            id: hash,
+            title: "Transaction Pending",
+            description: `Transaction with hash ${hash} is still pending.`,
+            duration: 5000,
+          });
+        }
+
+        setTransactions((prevTransactions) =>
+          prevTransactions?.filter((tx) => tx !== hash)
+        );
+      } else {
+        toast({
+          id: hash,
+          title: "Transaction Pending",
+          description: `Transaction with hash ${hash} is still pending.`,
+          duration: Number.POSITIVE_INFINITY,
+        });
+      }
+    } else {
+      const t = toasts.find((t) => t.id === hash);
+      if (!!t) {
+        t.description = `Transaction with hash ${hash} has failed.`;
+        t.title = "Transaction Failed";
+        t.duration = 5000;
+      } else {
+        toast({
+          id: hash,
+          title: "Transaction Pending",
+          description: `Transaction with hash ${hash} is still pending.`,
+          duration: 5000,
+        });
+      }
+
+      setTransactions((prevTransactions) =>
+        prevTransactions?.filter((tx) => tx !== hash)
+      );
+    }
+  };
+
+  return null;
+};

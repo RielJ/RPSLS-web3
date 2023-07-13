@@ -31,9 +31,9 @@ import { useForm } from "react-hook-form";
 import { Address, useAccount, useBalance } from "wagmi";
 import * as z from "zod";
 import validator from "validator";
-import { useDeployContract } from "@/hooks";
 import { MOVE } from "@/constants";
 import { parseEther } from "viem";
+import { useCreateGame } from "@/hooks";
 
 const createGameFormSchema = z.object({
   address: z.string().refine(validator.isEthereumAddress, {
@@ -55,17 +55,14 @@ const CreateGame = () => {
   });
   const [isOpen, setIsOpen] = useState(false);
   const { address } = useAccount();
-  const { data: balance } = useBalance({
-    address,
-    watch: true,
-    cacheTime: 5000,
-  });
+  const { data: balance } = useBalance({ address });
 
-  const { mutate: deployContract, isLoading: isDeployLoading } =
-    useDeployContract();
   const { toast } = useToast();
 
-  function onSubmit(values: z.infer<typeof createGameFormSchema>) {
+  const { mutateAsync: createGame, isLoading: isDeployLoading } =
+    useCreateGame();
+
+  async function onSubmit(values: z.infer<typeof createGameFormSchema>) {
     if (
       balance &&
       parseEther(values.stake) > parseEther(balance?.value.toString())
@@ -76,7 +73,7 @@ const CreateGame = () => {
         description: "You don't have enough tokens to stake!",
       });
     } else {
-      deployContract({
+      createGame({
         address: values.address as Address,
         move: parseInt(values.move),
         stake: values.stake,
@@ -150,7 +147,7 @@ const CreateGame = () => {
                     </FormControl>
                     <SelectContent>
                       {MOVE.map((move, i) => (
-                        <SelectItem value={i.toString()} key={`${move}`}>
+                        <SelectItem value={(i + 1).toString()} key={`${move}`}>
                           {move}
                         </SelectItem>
                       ))}

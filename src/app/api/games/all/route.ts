@@ -1,7 +1,6 @@
-import { Game, Prisma, PrismaClient } from "@prisma/client";
+import prisma from "@/prisma-client";
+import { Game, Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
 
 export async function GET(req: Request) {
   if (req.method !== "GET") {
@@ -14,9 +13,13 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const address = searchParams.get("address") || "";
+    const chainId = searchParams.get("chainId") || "";
     const games: Game[] = await prisma.game.findMany({
       where: {
-        OR: [{ player1: address }, { player2: address }],
+        AND: [
+          { OR: [{ player1: address }, { player2: address }] },
+          { chainId },
+        ],
       },
       orderBy: {
         createdAt: "desc",

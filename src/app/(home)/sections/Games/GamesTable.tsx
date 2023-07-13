@@ -12,9 +12,11 @@ import { GamesTableRow } from "./GamesTableRow";
 
 const GamesTable = () => {
   const { data: games } = useGames();
+
+  // TODO: Pagination
   return (
     <div className="w-full">
-      {games ? (
+      {games && games.length ? (
         <Table className="bg-transparent">
           <TableCaption>A list of your recent games.</TableCaption>
           <TableHeader>
@@ -29,7 +31,7 @@ const GamesTable = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {games?.data.map((game) => (
+            {games?.map((game) => (
               <GamesTableRow key={game.id} game={game} />
             ))}
           </TableBody>
@@ -37,7 +39,7 @@ const GamesTable = () => {
       ) : (
         <div className="mt-6 flex justify-center">
           <h1 className="font-bold text-xl">
-            You have no games played. Create a Game to continue!
+            You have no games played. Create a game with your friend!
           </h1>
         </div>
       )}

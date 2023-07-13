@@ -1,17 +1,25 @@
 "use client";
 import { getDefaultWallets } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, mainnet } from "wagmi";
-import { fantom, fantomTestnet, goerli, polygon, polygonMumbai } from "wagmi/chains";
+import {
+  fantom,
+  fantomTestnet,
+  goerli,
+  hardhat,
+  polygon,
+  polygonMumbai,
+} from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
+    hardhat,
     polygonMumbai,
     polygon,
     fantom,
     fantomTestnet,
     mainnet,
-    goerli
+    goerli,
     // hardhat,
     // ...(process.env.NODE_ENV === "development" ? [goerli] : []),
   ],

@@ -13,13 +13,10 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const move = searchParams.get("move") || "";
     const salt = process.env.SALT || "";
-      const hash = keccak256(
-        concat([toBytes(move), toBytes(salt, { size: 32 })])
-      );
-    return NextResponse.json(
-      { data: hash },
-      { status: 200 }
+    const hash = keccak256(
+      concat([toBytes(move), toBytes(salt, { size: 32 })])
     );
+    return NextResponse.json({ data: hash }, { status: 200 });
   } catch (err) {
     return NextResponse.json(
       { message: "Something went wrong", error: err },

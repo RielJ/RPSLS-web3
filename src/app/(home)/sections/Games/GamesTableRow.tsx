@@ -1,21 +1,21 @@
 "use client";
 import {
-  TableRow,
   TableCell,
-  TooltipProvider,
+  TableRow,
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components";
 import { formatTime, shortify } from "@/utils";
 import { Game } from "@prisma/client";
 import React, { useEffect, useState } from "react";
-import { HiInformationCircle } from "react-icons/hi";
-import { GrInProgress } from "react-icons/gr";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import { FaEquals } from "react-icons/fa";
-import { useAccount, useBalance } from "wagmi";
+import { GrInProgress } from "react-icons/gr";
+import { HiInformationCircle } from "react-icons/hi";
 import { GamesTableAction } from "./GamesTableAction";
+import { useAccount, useBalance } from "wagmi";
 
 interface IGamesTableRow {
   game: Game;
@@ -23,9 +23,7 @@ interface IGamesTableRow {
 
 const GamesTableRow = ({ game }: IGamesTableRow) => {
   const { address } = useAccount();
-  const { data: balance } = useBalance({
-    address,
-  });
+  const { data: balance } = useBalance({ address });
   const [remainingTime, setRemainingTime] = useState(
     Date.now() - new Date(game.createdAt).getTime()
   );
@@ -49,11 +47,11 @@ const GamesTableRow = ({ game }: IGamesTableRow) => {
 
   return (
     <TableRow key={game.id}>
-      <TableCell className="font-medium">{game.id}</TableCell>
+      <TableCell className="font-medium">{game.id.split("-")[1]}</TableCell>
       <TableCell>
         {address === game.player1
-          ? shortify(game.player1)
-          : shortify(game.player2)}
+          ? shortify(game.player2)
+          : shortify(game.player1)}
       </TableCell>
       <TableCell>
         <TooltipProvider>
