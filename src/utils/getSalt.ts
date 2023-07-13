@@ -1,4 +1,4 @@
-import { Address, fromHex } from "viem";
+import { Address, fromHex, parseEther } from "viem";
 
 export const getSalt = ({
   address1,
@@ -14,7 +14,7 @@ export const getSalt = ({
   const saltBN =
     (fromHex(address1 || "0x", "bigint") +
       fromHex(address2 || "0x", "bigint") +
-      BigInt(stake)) /
+      parseEther(stake)) /
     BigInt(chainId || 1);
   return saltBN;
 };
