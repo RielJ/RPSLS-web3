@@ -1,7 +1,5 @@
 # Rock, Paper, Scissors, Spock, and Lizard Web3 Game
 
-<!-- ![Game](game-screenshot.png) -->
-
 This is a web-based implementation of the popular game "Rock, Paper, Scissors" extended with two additional choices: "Spock" and "Lizard". The game allows players to compete against each other using Web3 technology.
 
 ## Getting Started
@@ -25,9 +23,10 @@ To get started with the game, follow these steps:
 ## How to Play
 
 1. Connect your Ethereum wallet to the game by clicking the "Connect Wallet" button.
-2. Specify your choice of "Rock", "Paper", "Scissors", "Spock", or "Lizard".
-3. Once both players have made their choices, the game will determine the winner based on the rules of "Rock, Paper, Scissors, Spock, and Lizard".
-4. The winner will be awarded points, and the game will continue with the next round.
+2. Specify the Staked Amount.
+3. Specify your choice of "Rock", "Paper", "Scissors", "Spock", or "Lizard".
+4. Once both players have made their choices, the game will determine the winner based on the rules of "Rock, Paper, Scissors, Spock, and Lizard".
+5. The winner will be awarded by the staked amount, and the game is terminated.
 
 ## Technologies Used
 
