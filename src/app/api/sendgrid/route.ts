@@ -7,7 +7,14 @@ export async function POST(req: Request) {
   if (req.method !== "POST") {
     return NextResponse.json(
       { message: "Method not Allowed" },
-      { status: 405 }
+      {
+        status: 405,
+        headers: {
+          "Access-Control-Allow-Origin": "https://rielj.xyz",
+          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      }
     );
   }
 
@@ -53,11 +60,28 @@ export async function POST(req: Request) {
 </body>
 </html>`,
     });
-    return NextResponse.json({ message: "Email sent" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Email sent" },
+      {
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "https://rielj.xyz",
+          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      }
+    );
   } catch (err) {
     return NextResponse.json(
       { message: "Something went wrong", error: err },
-      { status: 400 }
+      {
+        status: 400,
+        headers: {
+          "Access-Control-Allow-Origin": "https://rielj.xyz",
+          "Access-Control-Allow-Methods": "POST",
+          "Access-Control-Allow-Headers": "Content-Type",
+        },
+      }
     );
   }
 }
