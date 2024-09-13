@@ -53,6 +53,7 @@ export async function POST(req: Request) {
 </body>
 </html>`,
     });
+    return NextResponse.json({ message: "Email sent" }, { status: 200 });
   } catch (err) {
     return NextResponse.json(
       { message: "Something went wrong", error: err },
