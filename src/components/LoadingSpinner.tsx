@@ -1,4 +1,7 @@
-export const LoadingSpinner = ({ w = 4, h = 4 }: { w?: number; h?: number }) => {
+export const LoadingSpinner = ({
+  w = 4,
+  h = 4,
+}: { w?: number; h?: number }) => {
   return (
     <>
       <>

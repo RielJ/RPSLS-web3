@@ -8,14 +8,14 @@ import {
   TooltipTrigger,
 } from "@/components";
 import { formatTime, shortify } from "@/utils";
-import { Game } from "@prisma/client";
+import type { Game } from "@prisma/client";
 import React, { useEffect, useState } from "react";
 import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import { FaEquals } from "react-icons/fa";
 import { GrInProgress } from "react-icons/gr";
 import { HiInformationCircle } from "react-icons/hi";
-import { GamesTableAction } from "./GamesTableAction";
 import { useAccount, useBalance } from "wagmi";
+import { GamesTableAction } from "./GamesTableAction";
 
 interface IGamesTableRow {
   game: Game;
@@ -25,7 +25,7 @@ const GamesTableRow = ({ game }: IGamesTableRow) => {
   const { address } = useAccount();
   const { data: balance } = useBalance({ address });
   const [remainingTime, setRemainingTime] = useState(
-    Date.now() - new Date(game.createdAt).getTime()
+    Date.now() - new Date(game.createdAt).getTime(),
   );
 
   useEffect(() => {
@@ -104,7 +104,8 @@ function getWinnerStatus(game: Game, address: string) {
           </TooltipContent>
         </>
       );
-    } else if (game.winner === address) {
+    }
+    if (game.winner === address) {
       return (
         <>
           <TooltipTrigger>
@@ -115,30 +116,28 @@ function getWinnerStatus(game: Game, address: string) {
           </TooltipContent>
         </>
       );
-    } else {
-      return (
-        <>
-          <TooltipTrigger>
-            <AiOutlineCloseCircle />
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Lost</p>
-          </TooltipContent>
-        </>
-      );
     }
-  } else {
     return (
       <>
         <TooltipTrigger>
-          <GrInProgress />
+          <AiOutlineCloseCircle />
         </TooltipTrigger>
         <TooltipContent>
-          <p>In Progress</p>
+          <p>Lost</p>
         </TooltipContent>
       </>
     );
   }
+  return (
+    <>
+      <TooltipTrigger>
+        <GrInProgress />
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>In Progress</p>
+      </TooltipContent>
+    </>
+  );
 }
 
 function TableActions({
@@ -156,24 +155,26 @@ function TableActions({
     if (address === player1) {
       if (status === "INIT")
         return <GamesTableAction game={game} action="j2Timeout" />;
-      else if (status === "PLAYER_2_DONE")
+      if (status === "PLAYER_2_DONE")
         return <GamesTableAction game={game} action="disabled" />;
-    } else if (address === player2) {
+    }
+    if (address === player2) {
       if (status === "INIT")
         return <GamesTableAction game={game} action="disabled" />;
-      else if (status === "PLAYER_2_DONE")
+      if (status === "PLAYER_2_DONE")
         return <GamesTableAction game={game} action="j1Timeout" />;
     }
   } else {
     if (address === player1) {
       if (status === "INIT")
         return <GamesTableAction game={game} action="disabled" />;
-      else if (status === "PLAYER_2_DONE")
+      if (status === "PLAYER_2_DONE")
         return <GamesTableAction game={game} action="solve" />;
-    } else if (address === player2) {
+    }
+    if (address === player2) {
       if (status === "INIT")
         return <GamesTableAction game={game} action="play" />;
-      else if (status === "PLAYER_2_DONE")
+      if (status === "PLAYER_2_DONE")
         return <GamesTableAction game={game} action="disabled" />;
     }
   }
@@ -209,7 +210,7 @@ function getStatusMessage({
   } else {
     if (address === player1) {
       if (status === "INIT") return "Waiting for the opponent to move.";
-      else if (status === "PLAYER_2_DONE")
+      if (status === "PLAYER_2_DONE")
         message = "You can now solve and see who wins!";
     } else if (address === player2) {
       if (status === "INIT")

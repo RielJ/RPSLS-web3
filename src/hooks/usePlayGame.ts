@@ -1,13 +1,12 @@
-import { RPS__factory } from "@/typechain-types";
-import { Game } from "@prisma/client";
-import { Address, parseEther } from "viem";
+import { rpsABI } from "@/generated";
+import type { Game } from "@prisma/client";
+import { useEffect } from "react";
+import { parseEther } from "viem";
 import {
   usePublicClient,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
+  useWaitForTransactionReceipt,
+  useWriteContract,
 } from "wagmi";
-import { useEffect } from "react";
 import { useDecrypt, useRPSToast, useUpdateGame } from ".";
 
 interface IUsePlayGame {
@@ -18,48 +17,49 @@ interface IUsePlayGame {
 export const usePlayGame = ({ game, move }: IUsePlayGame) => {
   const publicClient = usePublicClient();
   const { mutateAsync: decrypt } = useDecrypt();
-  const { mutate: updateGame /* , isLoading: isUpdateGameLoading */ } =
-    useUpdateGame();
+  const { mutate: updateGame } = useUpdateGame();
   const { toastLoader, toast, currentToast, setCurrentToast } = useRPSToast();
 
-  const { config } = usePrepareContractWrite({
-    address: game.contractAddress as Address,
-    abi: RPS__factory.abi,
-    functionName: "play",
-    args: [parseInt(move)],
-    enabled: parseInt(move) > 0,
-    value: parseEther(game.staked),
+  const { writeContract: play, data: hash, isPending } = useWriteContract();
+
+  const { isLoading, data: receipt } = useWaitForTransactionReceipt({
+    hash,
   });
 
-  const { write: play, data } = useContractWrite({
-    ...config,
-    onMutate: () => {
-      setCurrentToast(
-        toastLoader({
-          title: "Playing!",
-          description: "Submitting Move...",
-        })
-      );
-    },
-    onSuccess: () => {
-      currentToast?.update({
-        id: currentToast.id,
-        description: "Waiting for the block to be mined",
-      });
-    },
-    onError: () => {
-      currentToast?.dismiss();
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      });
-    },
-  });
-
-  const { isLoading, data: receipt } = useWaitForTransaction({
-    hash: data?.hash,
-  });
+  const handlePlay = () => {
+    if (Number.parseInt(move) <= 0) return;
+    setCurrentToast(
+      toastLoader({
+        title: "Playing!",
+        description: "Submitting Move...",
+      }),
+    );
+    play(
+      {
+        address: game.contractAddress as `0x${string}`,
+        abi: rpsABI,
+        functionName: "play",
+        args: [Number.parseInt(move)],
+        value: parseEther(game.staked),
+      },
+      {
+        onSuccess: () => {
+          currentToast?.update({
+            id: currentToast.id,
+            description: "Waiting for the block to be mined",
+          });
+        },
+        onError: () => {
+          currentToast?.dismiss();
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          });
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     const update = async () => {
@@ -68,6 +68,7 @@ export const usePlayGame = ({ game, move }: IUsePlayGame) => {
         description: "Move Submitted! Updating Game Status!",
       });
       try {
+        if (!publicClient) return;
         const { move: moveEncrypted, moveIV, player1, player2 } = game;
         const [res, block] = await Promise.all([
           decrypt({ move: moveEncrypted, moveIV }),
@@ -75,14 +76,14 @@ export const usePlayGame = ({ game, move }: IUsePlayGame) => {
             blockNumber: receipt?.blockNumber,
           }),
         ]);
-        const move1 = parseInt(res.data);
-        const move2 = parseInt(move);
+        const move1 = Number.parseInt(res.data);
+        const move2 = Number.parseInt(move);
         let winStatus = "";
 
         if (move1 === move2) winStatus = "Tie";
         else if (move1 % 2 === move2 % 2)
-          move1 < move2 ? (winStatus = player1) : (winStatus = player2);
-        else move1 > move2 ? (winStatus = player1) : (winStatus = player2);
+          winStatus = move1 < move2 ? player1 : player2;
+        else winStatus = move1 > move2 ? player1 : player2;
         updateGame({
           ...game,
           status: "PLAYER_2_DONE",
@@ -116,5 +117,5 @@ export const usePlayGame = ({ game, move }: IUsePlayGame) => {
     }
   }, [receipt]);
 
-  return { play, isLoading };
+  return { play: handlePlay, isLoading: isLoading || isPending };
 };

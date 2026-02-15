@@ -19,7 +19,7 @@ export const useDecrypt = () => {
             "Content-Type": "application/json",
           },
           method: "GET",
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Network response was not ok");

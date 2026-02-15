@@ -1,13 +1,13 @@
 import {
-  NotConnected,
-  Connected,
-  ConnectButton,
   Card,
-  CardHeader,
-  CardDescription,
-  Separator,
   CardContent,
+  CardDescription,
+  CardHeader,
+  ConnectButton,
+  Connected,
   LoadingSpinner,
+  NotConnected,
+  Separator,
 } from "@/components";
 import React, { Suspense } from "react";
 import { GamesTable } from "./GamesTable";
@@ -15,13 +15,7 @@ import { CreateGame } from "./actions";
 
 const Games = () => {
   return (
-    <Suspense
-      fallback={
-        <>
-          <LoadingSpinner />
-        </>
-      }
-    >
+    <Suspense fallback={<LoadingSpinner />}>
       <section className="container w-full h-full flex justify-center pb-[10rem] mt-[120px]">
         <NotConnected>
           <div className="flex flex-col justify-center items-center space-y-3">

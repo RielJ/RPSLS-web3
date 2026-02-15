@@ -1,5 +1,5 @@
 "use client";
-import { Game } from "@prisma/client";
+import type { Game } from "@prisma/client";
 import React from "react";
 import { GrDisabledOutline } from "react-icons/gr";
 import { J1Timeout, J2Timeout, PlayGame, SolveGame } from "./actions";

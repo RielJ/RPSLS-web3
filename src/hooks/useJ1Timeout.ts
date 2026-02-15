@@ -1,53 +1,51 @@
-import { RPS__factory } from "@/typechain-types";
-import { Game } from "@prisma/client";
+import { rpsABI } from "@/generated";
+import type { Game } from "@prisma/client";
 import { useEffect } from "react";
-import {
-  Address,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
-import { useUpdateGame } from "./useUpdateGame";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useRPSToast } from "./useRPSToast";
+import { useUpdateGame } from "./useUpdateGame";
 
 export const useJ1Timeout = ({ game }: { game: Game }) => {
   const { mutateAsync: updateGame } = useUpdateGame();
-  const { config } = usePrepareContractWrite({
-    address: game.contractAddress as Address,
-    abi: RPS__factory.abi,
-    functionName: "j1Timeout",
-  });
   const { toastLoader, toast, currentToast, setCurrentToast } = useRPSToast();
 
-  const { write: j1Timeout, data } = useContractWrite({
-    ...config,
-    onMutate: () => {
-      setCurrentToast(
-        toastLoader({
-          title: "Opponent timeout!",
-          description: "Claiming Token!",
-        })
-      );
-    },
-    onSuccess: () => {
-      currentToast?.update({
-        id: currentToast.id,
-        description: "Waiting for the block to be mined",
-      });
-    },
-    onError: () => {
-      currentToast?.dismiss();
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      });
-    },
+  const { writeContract, data: hash, isPending } = useWriteContract();
+
+  const { isLoading, data: receipt } = useWaitForTransactionReceipt({
+    hash,
   });
 
-  const { isLoading, data: receipt } = useWaitForTransaction({
-    hash: data?.hash,
-  });
+  const j1Timeout = () => {
+    setCurrentToast(
+      toastLoader({
+        title: "Opponent timeout!",
+        description: "Claiming Token!",
+      }),
+    );
+    writeContract(
+      {
+        address: game.contractAddress as `0x${string}`,
+        abi: rpsABI,
+        functionName: "j1Timeout",
+      },
+      {
+        onSuccess: () => {
+          currentToast?.update({
+            id: currentToast.id,
+            description: "Waiting for the block to be mined",
+          });
+        },
+        onError: () => {
+          currentToast?.dismiss();
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          });
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     const update = async () => {
@@ -88,5 +86,5 @@ export const useJ1Timeout = ({ game }: { game: Game }) => {
     }
   }, [receipt]);
 
-  return { j1Timeout, isLoading };
+  return { j1Timeout, isLoading: isLoading || isPending };
 };

@@ -1,4 +1,4 @@
-import { Address, fromHex, parseEther } from "viem";
+import { type Address, fromHex, parseEther } from "viem";
 
 export const getSalt = ({
   address1,

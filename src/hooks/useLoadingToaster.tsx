@@ -1,5 +1,5 @@
-import { ToastType, useToast } from "@/components";
-import { ReactNode } from "react";
+import { type ToastType, useToast } from "@/components";
+import type { ReactNode } from "react";
 
 const DescriptionElement = (description: ReactNode) => <div>{description}</div>;
 

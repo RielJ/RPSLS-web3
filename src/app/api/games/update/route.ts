@@ -1,12 +1,12 @@
 import prisma from "@/prisma-client";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   if (req.method !== "POST") {
     return NextResponse.json(
       { message: "Method not Allowed" },
-      { status: 405 }
+      { status: 405 },
     );
   }
 
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   } catch (err) {
     return NextResponse.json(
       { message: "Something went wrong", error: err },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

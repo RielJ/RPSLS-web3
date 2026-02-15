@@ -9,31 +9,32 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  Input,
+  Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
-  Form,
-  Separator,
+  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Separator,
   useToast,
 } from "@/components";
+import { MOVE } from "@/constants";
+import { useCreateGame } from "@/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Address, useAccount, useBalance } from "wagmi";
-import * as z from "zod";
 import validator from "validator";
-import { MOVE } from "@/constants";
+import type { Address } from "viem";
 import { parseEther } from "viem";
-import { useCreateGame } from "@/hooks";
+import { useAccount, useBalance } from "wagmi";
+import * as z from "zod";
 
 const createGameFormSchema = z.object({
   address: z.string().refine(validator.isEthereumAddress, {
@@ -63,10 +64,7 @@ const CreateGame = () => {
     useCreateGame();
 
   async function onSubmit(values: z.infer<typeof createGameFormSchema>) {
-    if (
-      balance &&
-      parseEther(values.stake) > parseEther(balance?.value.toString())
-    ) {
+    if (balance && parseEther(values.stake) > (balance?.value ?? 0n)) {
       toast({
         variant: "destructive",
         title: "Uh oh! Something went wrong.",
@@ -75,7 +73,7 @@ const CreateGame = () => {
     } else {
       createGame({
         address: values.address as Address,
-        move: parseInt(values.move),
+        move: Number.parseInt(values.move),
         stake: values.stake,
       });
       setIsOpen(false);

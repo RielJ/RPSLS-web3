@@ -1,11 +1,11 @@
 "use client";
 import {
   Table,
+  TableBody,
   TableCaption,
+  TableHead,
   TableHeader,
   TableRow,
-  TableHead,
-  TableBody,
 } from "@/components";
 import { useGames } from "@/hooks";
 import { GamesTableRow } from "./GamesTableRow";
@@ -16,7 +16,7 @@ const GamesTable = () => {
   // TODO: Pagination
   return (
     <div className="w-full">
-      {games && games.length ? (
+      {games?.length ? (
         <Table className="bg-transparent">
           <TableCaption>A list of your recent games.</TableCaption>
           <TableHeader>

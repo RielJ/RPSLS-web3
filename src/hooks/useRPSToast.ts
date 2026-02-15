@@ -1,4 +1,4 @@
-import { useToastLoader, useToast, ToasterToast } from "@/components";
+import { type ToasterToast, useToast, useToastLoader } from "@/components";
 import { useState } from "react";
 
 export const useRPSToast = () => {

@@ -15,22 +15,18 @@ export function ToasterLoader() {
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1 relative">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            <span className="absolute top-4 right-4">
-              <LoadingSpinner />
-            </span>
-            {action}
-          </Toast>
-        );
-      })}
+      {toasts.map(({ id, title, description, action, ...props }) => (
+        <Toast key={id} {...props}>
+          <div className="grid gap-1 relative">
+            {title && <ToastTitle>{title}</ToastTitle>}
+            {description && <ToastDescription>{description}</ToastDescription>}
+          </div>
+          <span className="absolute top-4 right-4">
+            <LoadingSpinner />
+          </span>
+          {action}
+        </Toast>
+      ))}
       <ToastViewport className="space-y-2" />
     </ToastProvider>
   );

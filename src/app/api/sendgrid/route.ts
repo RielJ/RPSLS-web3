@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import sendGrid from "@sendgrid/mail";
+import { NextResponse } from "next/server";
 
 sendGrid.setApiKey(process.env.SENDGRID_API_KEY || "");
 
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
         },
-      }
+      },
     );
   }
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if (!name || !from || !subject || !text) {
     return NextResponse.json(
       { message: "Missing required fields" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
         },
-      }
+      },
     );
   } catch (err) {
     return NextResponse.json(
@@ -81,7 +81,7 @@ export async function POST(req: Request) {
           "Access-Control-Allow-Methods": "POST",
           "Access-Control-Allow-Headers": "Content-Type",
         },
-      }
+      },
     );
   }
 }

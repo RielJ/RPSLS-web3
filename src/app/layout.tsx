@@ -1,11 +1,11 @@
-"use client";
 import "@rainbow-me/rainbowkit/styles.css";
 import "./globals.css";
-import { Poppins } from "next/font/google";
-import { CursorEffects, Toaster } from "@/components";
-import { useState, useEffect } from "react";
-import { Providers, ThemeProvider } from "./providers";
+import { Toaster } from "@/components";
 import { ToasterLoader } from "@/components/shadcn/ui/toaster-loader";
+import { Poppins } from "next/font/google";
+import { ClientLayout } from "./client-layout";
+import { ThemeProvider } from "./providers";
+import { Providers } from "./providers/providers";
 
 const poppins = Poppins({
   weight: "700",
@@ -18,33 +18,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [width, setWidth] = useState<number>(0);
-
-  // TODO: Determine how to disable CursorEffects when
-  // it's on touch only devices.
-  function handleWindowSizeChange() {
-    setWidth(window.innerWidth);
-  }
-
-  useEffect(() => {
-    window.addEventListener("resize", handleWindowSizeChange);
-    setWidth(window.innerWidth);
-    return () => {
-      window.removeEventListener("resize", handleWindowSizeChange);
-    };
-  }, []);
-
-  const isMobile = width <= 768;
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${poppins.variable} font-primary min-w-[100vw] min-h-[100vh]`}
       >
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-            {!isMobile && <CursorEffects />}
-            {children}
+            <ClientLayout>{children}</ClientLayout>
             <Toaster />
             <ToasterLoader />
           </ThemeProvider>

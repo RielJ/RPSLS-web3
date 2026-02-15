@@ -2,7 +2,7 @@
 
 import { Button, LoadingSpinner } from "@/components";
 import { useJ1Timeout, useJ2Timeout } from "@/hooks";
-import { Game } from "@prisma/client";
+import type { Game } from "@prisma/client";
 
 export const J1Timeout = ({ game }: { game: Game }) => {
   const { j1Timeout, isLoading } = useJ1Timeout({ game });

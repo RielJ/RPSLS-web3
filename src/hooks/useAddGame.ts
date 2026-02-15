@@ -1,4 +1,4 @@
-import { Game } from "@prisma/client";
+import type { Game } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import { useGames } from "./useGames";
 

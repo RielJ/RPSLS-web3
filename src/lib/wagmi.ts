@@ -1,42 +1,39 @@
-"use client";
-import { getDefaultWallets } from "@rainbow-me/rainbowkit";
-import { configureChains, createConfig, mainnet } from "wagmi";
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { http } from "wagmi";
+import { cookieStorage, createStorage } from "wagmi";
 import {
   fantom,
   fantomTestnet,
-  goerli,
   hardhat,
+  mainnet,
   polygon,
-  polygonMumbai,
+  polygonAmoy,
+  sepolia,
 } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
 
-const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [
+export const config = getDefaultConfig({
+  appName: "Rock Paper Scissors Spock and Lizard Game",
+  projectId: "7f8cb052248fb68ed79a97d91e38f795",
+  chains: [
     hardhat,
-    polygonMumbai,
+    polygonAmoy,
     polygon,
     fantom,
     fantomTestnet,
     mainnet,
-    goerli,
-    // hardhat,
-    // ...(process.env.NODE_ENV === "development" ? [goerli] : []),
+    sepolia,
   ],
-  [publicProvider()]
-);
-
-const { connectors } = getDefaultWallets({
-  appName: "Rock Paper Scissors Spock and Lizard Game",
-  chains,
-  projectId: "7f8cb052248fb68ed79a97d91e38f795",
+  transports: {
+    [hardhat.id]: http(),
+    [polygonAmoy.id]: http(),
+    [polygon.id]: http(),
+    [fantom.id]: http(),
+    [fantomTestnet.id]: http(),
+    [mainnet.id]: http(),
+    [sepolia.id]: http(),
+  },
+  ssr: true,
+  storage: createStorage({
+    storage: cookieStorage,
+  }),
 });
-
-export const config = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient,
-  webSocketPublicClient,
-});
-
-export { chains };

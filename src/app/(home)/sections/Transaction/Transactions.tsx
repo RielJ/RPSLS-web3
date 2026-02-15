@@ -1,18 +1,16 @@
 "use client";
+import { config } from "@/lib";
+import { ToastProvider, ToastViewport } from "@radix-ui/react-toast";
 import { useState } from "react";
-import { OnTransactionsParameter } from "viem";
 import { useWatchPendingTransactions } from "wagmi";
 import { TransactionToast } from "./TransactionToast";
-import { ToastProvider, ToastViewport } from "@radix-ui/react-toast";
 
 // TODO: Synchronize Transaction Notifications across multiple tabs.
 export const Transactions = () => {
-  const [transactions, setTransactions] = useState<
-    OnTransactionsParameter | undefined
-  >([]);
+  const [transactions, setTransactions] = useState<`0x${string}`[]>([]);
 
   useWatchPendingTransactions({
-    listener: (hashes) => {
+    onTransactions: (hashes) => {
       setTransactions(hashes);
     },
   });

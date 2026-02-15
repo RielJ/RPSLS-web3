@@ -1,16 +1,11 @@
-import { RPS__factory } from "@/typechain-types";
-import { Game } from "@prisma/client";
-import { Address } from "viem";
-import {
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-} from "wagmi";
-import { useDecrypt } from "./useDecrypt";
-import { useUpdateGame } from "./useUpdateGame";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { rpsABI } from "@/generated";
 import { getSalt } from "@/utils";
+import type { Game } from "@prisma/client";
+import { useEffect, useMemo, useState } from "react";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useDecrypt } from "./useDecrypt";
 import { useRPSToast } from "./useRPSToast";
+import { useUpdateGame } from "./useUpdateGame";
 
 interface IUseSolveGame {
   game: Game;
@@ -18,14 +13,13 @@ interface IUseSolveGame {
 
 export const useSolveGame = ({ game }: IUseSolveGame) => {
   const { mutateAsync: decrypt } = useDecrypt();
-  const { mutate: updateGame /* , isLoading: isUpdateGameLoading */ } =
-    useUpdateGame();
+  const { mutate: updateGame } = useUpdateGame();
   const salt = useMemo(() => {
     return getSalt({
-      address1: game.player1 as Address,
-      address2: game.player2 as Address,
+      address1: game.player1 as `0x${string}`,
+      address2: game.player2 as `0x${string}`,
       stake: game.staked,
-      chainId: parseInt(game.chainId),
+      chainId: Number.parseInt(game.chainId),
     });
   }, [game]);
   const [move, setMove] = useState("0");
@@ -39,50 +33,52 @@ export const useSolveGame = ({ game }: IUseSolveGame) => {
             move: game.move,
             moveIV: game.moveIV,
           })
-        ).data
+        ).data,
       );
     };
 
     getMove();
   }, [game]);
 
-  const { config } = usePrepareContractWrite({
-    address: game.contractAddress as Address,
-    abi: RPS__factory.abi,
-    functionName: "solve",
-    args: [parseInt(move), salt],
-    enabled: move !== "0",
+  const { writeContract, data: hash, isPending } = useWriteContract();
+
+  const { isLoading, data: receipt } = useWaitForTransactionReceipt({
+    hash,
   });
 
-  const { write: solve, data } = useContractWrite({
-    ...config,
-    onMutate: () => {
-      setCurrentToast(
-        toastLoader({
-          title: "Solving!",
-          description: "Solving Game...",
-        })
-      );
-    },
-    onSuccess: () => {
-      currentToast?.update({
-        id: currentToast.id,
-        description: "Waiting for the block to be mined",
-      });
-    },
-    onError: () => {
-      currentToast?.dismiss();
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      });
-    },
-  });
-
-  const { isLoading, data: receipt } = useWaitForTransaction({
-    hash: data?.hash,
-  });
+  const solve = () => {
+    if (move === "0") return;
+    setCurrentToast(
+      toastLoader({
+        title: "Solving!",
+        description: "Solving Game...",
+      }),
+    );
+    writeContract(
+      {
+        address: game.contractAddress as `0x${string}`,
+        abi: rpsABI,
+        functionName: "solve",
+        args: [Number.parseInt(move), salt],
+      },
+      {
+        onSuccess: () => {
+          currentToast?.update({
+            id: currentToast.id,
+            description: "Waiting for the block to be mined",
+          });
+        },
+        onError: () => {
+          currentToast?.dismiss();
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          });
+        },
+      },
+    );
+  };
 
   useEffect(() => {
     const update = async () => {
@@ -121,5 +117,5 @@ export const useSolveGame = ({ game }: IUseSolveGame) => {
     }
   }, [receipt]);
 
-  return { solve, isLoading };
+  return { solve, isLoading: isLoading || isPending };
 };

@@ -26,7 +26,7 @@ import {
 import { MOVE } from "@/constants";
 import { usePlayGame } from "@/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Game } from "@prisma/client";
+import type { Game } from "@prisma/client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import validator from "validator";
@@ -54,10 +54,8 @@ export const PlayGame = ({ game }: { game: Game }) => {
   const { play, isLoading } = usePlayGame({ game, move });
 
   function onSubmit() {
-    if (play) {
-      setIsOpen(false);
-      play?.();
-    }
+    setIsOpen(false);
+    play();
   }
 
   return (
@@ -123,7 +121,7 @@ export const PlayGame = ({ game }: { game: Game }) => {
             />
             <Separator />
             <DialogFooter>
-              <Button type="submit" disabled={!play || isLoading}>
+              <Button type="submit" disabled={isLoading}>
                 Play
               </Button>
             </DialogFooter>

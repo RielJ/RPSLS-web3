@@ -1,11 +1,11 @@
-import { NextResponse } from "next/server";
 import CryptoJS from "crypto-js";
+import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   if (req.method !== "GET") {
     return NextResponse.json(
       { message: "Method not Allowed" },
-      { status: 405 }
+      { status: 405 },
     );
   }
 
@@ -25,7 +25,7 @@ export async function GET(req: Request) {
   } catch (err) {
     return NextResponse.json(
       { message: "Something went wrong", error: err },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

@@ -1,6 +1,10 @@
-import { useToastLoader, ToasterToast } from "@/components";
+import { type ToasterToast, useToastLoader } from "@/components";
 import { useEffect, useState } from "react";
-import { useAccount, usePublicClient, useWaitForTransaction } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 
 interface ITransactionToast {
   hash: `0x${string}`;
@@ -24,13 +28,16 @@ export const TransactionToast = ({
     | undefined
   >();
 
-  const { data, isError, isLoading } = useWaitForTransaction({
+  const { data, isError, isLoading } = useWaitForTransactionReceipt({
     hash,
-    enabled: loaded,
+    query: {
+      enabled: loaded,
+    },
   });
 
   useEffect(() => {
     async function load() {
+      if (!publicClient) return;
       const transaction = await publicClient.getTransaction({ hash });
 
       if (transaction.from === address) {
@@ -41,7 +48,7 @@ export const TransactionToast = ({
             toastLoader({
               title: "Creating an RPS Game",
               description: "Deploying Contract...",
-            })
+            }),
           );
           setLoaded(true);
         }
